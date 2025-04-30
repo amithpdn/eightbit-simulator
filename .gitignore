@@ -13,6 +13,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!/eightbit_simulator/frontend/src/lib
 lib64/
 parts/
 sdist/
