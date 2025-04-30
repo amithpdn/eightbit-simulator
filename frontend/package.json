@@ -1,6 +1,7 @@
 {
-  "name": "frontend",
+  "name": "eightbit-simulator",
   "version": "0.1.0",
+  "homepage": "/eightbit-simulator",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
