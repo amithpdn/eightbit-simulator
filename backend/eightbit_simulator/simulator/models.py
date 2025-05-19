@@ -47,7 +47,6 @@ class ExampleProgram(models.Model):
         """String representation for admin and debugging"""
         return self.name
 
-
 class SimulatorSession(models.Model):
     """
     Tracks user sessions with the simulator

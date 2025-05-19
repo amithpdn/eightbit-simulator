@@ -14,7 +14,7 @@
 """
 
 from django.contrib import admin
-from .models import InstructionSet, ExampleProgram
+from .models import InstructionSet, ExampleProgram, SimulatorSession
 
 # Register the InstructionSet model with the admin site
 # This allows administrators to view and edit instructions in the Django admin interface
@@ -33,3 +33,24 @@ class ExampleProgramAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
     # Configure search functionality to search by these fields
     search_fields = ('name', 'description', 'code')
+
+# Register the SimulatorSession model with the admin site
+# This allows administrators to view user session information in the Django admin interface
+@admin.register(SimulatorSession)
+class SimulatorSession(admin.ModelAdmin):
+    # Configure the list display to show these fields in the admin list view
+    list_display = ('session_id','user_ip','start_time','last_activity','code_executed')
+    # Configure search functionality to search by these fields
+    search_fields = ('session_id','user_ip')
+
+    def has_change_permission(self, request, obj=None):
+        # Disable edit permission completely
+        return False
+    
+    def has_add_permission(self, request):
+        # Disable add permission if you don't want new records created via admin
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        # Disable delete permission if you don't want records deleted via admin
+        return False
