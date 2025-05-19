@@ -35,6 +35,7 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+.ruff_cache
 
 # Django
 *.log
