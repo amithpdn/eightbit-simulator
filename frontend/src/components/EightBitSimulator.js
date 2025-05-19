@@ -896,7 +896,7 @@ const EightBitSimulator = () => {
                 {/* ROM memory display grid */}
                 {/* For mobile in portrait mode, show fewer rows */}
                 {Array.from(
-                  { length: isPortrait && isMobile ? 4 : 8 },
+                  { length: isPortrait && isMobile ? 6 : 8 },
                   (_, row) => (
                     <React.Fragment key={row}>
                       {/* Row address label */}
@@ -953,7 +953,7 @@ const EightBitSimulator = () => {
                 {/* RAM memory display grid */}
                 {/* For mobile in portrait mode, show fewer rows */}
                 {Array.from(
-                  { length: isPortrait && isMobile ? 4 : 8 },
+                  { length: isPortrait && isMobile ? 6 : 8 },
                   (_, row) => (
                     <React.Fragment key={row}>
                       {/* Row address label */}
