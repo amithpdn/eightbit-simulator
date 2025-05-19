@@ -1,3 +1,5 @@
+// \frontend\src\api\cpu.js
+
 // CPU simulator core logic
 
 class CPU {

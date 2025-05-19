@@ -1,3 +1,19 @@
+
+# /backend/eightbit_simulator/simulator/models.py
+# Author: Amith Lokugamage
+# Last Modified: May 18, 2025
+"""
+ * Data Models for the 8-bit Computer Simulator
+ * 
+ * This file defines the database models for storing instruction sets,
+ * example programs, and user session data for the simulator application.
+ * 
+ * Features:
+ * - InstructionSet model for storing CPU instructions and opcodes
+ * - ExampleProgram model for storing demonstration code
+ * - SimulatorSession model for tracking user interaction with the simulator
+"""
+
 from django.db import models
 import uuid
 
@@ -26,10 +42,6 @@ class ExampleProgram(models.Model):
     name = models.CharField(max_length=100)       # Program name displayed in the UI
     description = models.TextField()              # Description of what the program does
     code = models.TextField()                     # The actual assembly code
-
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    code = models.TextField()
     
     def __str__(self):
         """String representation for admin and debugging"""

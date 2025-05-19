@@ -1,3 +1,18 @@
+# /backend/eightbit_simulator/simulator/views.py
+# Author: Amith Lokugamage
+# Last Modified: May 18, 2025
+"""
+ * API Views for the 8-bit Computer Simulator
+ * 
+ * This file defines the API endpoints for the simulator application using Django REST Framework.
+ * It provides access to instruction sets, example programs, and session management functionality.
+ * 
+ * Features:
+ * - Read-only endpoints for instruction set and example program data
+ * - Session creation and management endpoint
+ * - Custom action for recording executed code in a session
+"""
+
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action

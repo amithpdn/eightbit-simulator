@@ -1,6 +1,25 @@
+// /frontend/src/api/simulatorApi.js
+// Author: Amith Lokugamage 
+// Last Modified: May 18, 2025
+/**
+ * Simulator API Client
+ * 
+ * This file contains API client functions for interacting with the backend services
+ * of the 8-bit computer simulator. It handles fetching instruction sets, example programs,
+ * and managing user sessions.
+ * 
+ * Features:
+ * - Fetch instruction set definitions
+ * - Fetch example programs
+ * - Create and manage simulation sessions
+ * - Track user activity and code execution
+ * 
+ * @module simulatorApi
+ */
+
 // Base API URL - gets from environment variables or falls back to localhost
 //const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-import { API_URL } from '../config/api';
+import { API_URL } from '../config/config';
 
 /**
  * Fetches the instruction set from the API

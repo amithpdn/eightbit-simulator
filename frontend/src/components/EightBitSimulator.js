@@ -1,3 +1,24 @@
+// /frontend/src/components/EightBitSimulator.js
+// Author: Amith Lokugamage 
+// Last Modified: May 19, 2025
+/**
+ * 8-bit Computer Simulator Component
+ * 
+ * This is the main UI component for the 8-bit computer simulator application.
+ * It provides an interactive interface for writing and executing assembly code,
+ * visualizing CPU components, and displaying memory contents in real-time.
+ * 
+ * Features:
+ * - Interactive assembly code editor with syntax highlighting
+ * - Visual CPU simulation with component highlighting
+ * - ROM and RAM memory visualization
+ * - Example program library with one-click loading
+ * - Variable clock speed execution control
+ * - Educational disclaimers and terms
+ * 
+ * @module EightBitSimulator
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import CPU from '../lib/cpu';
 import DOMPurify from 'dompurify';
@@ -8,8 +29,16 @@ import {
   updateSessionCode
 } from '../api/simulatorApi';
 
+/**
+ * Main component for the 8-bit computer simulator interface
+ * Manages state, UI rendering, and interactions with the CPU simulator
+ * 
+ * @returns {JSX.Element} The rendered simulator interface
+ */
 const EightBitSimulator = () => {
+  // -------------------------------------------------------------------------
   // State variables
+  // -------------------------------------------------------------------------
   const [sessionId, setSessionId] = useState(null);                    // Unique session ID for API calls
   const [assemblyCode, setAssemblyCode] = useState('');                // Current assembly code in editor
   const [examples, setExamples] = useState([]);                        // Available example programs
@@ -18,39 +47,57 @@ const EightBitSimulator = () => {
   const [showInstructionSet, setShowInstructionSet] = useState(false); // Controls instruction set modal visibility
   const [clockSpeed, setClockSpeed] = useState(1);                     // CPU clock speed in Hz
   const [currentLine, setCurrentLine] = useState(0);                   // Currently executing line for highlighting
+  
+  // Comprehensive CPU state object for visualization and tracking
   const [cpuState, setCpuState] = useState({
-    registerA: 0,                          // Accumulator register
-    registerB: 0,                          // Secondary register (not actively used)
-    programCounter: 0,                     // Current execution position
-    instructionRegister: 0,                // Current instruction
-    outputRegister: 0,                     // Output register value
-    flags: { zero: false, carry: false },  // CPU flags
-    rom: Array(256).fill(0),               // ROM memory (program storage)
-    ram: Array(256).fill(0),               // RAM memory (data storage)
+    registerA: 0,                          // Accumulator register - primary working register
+    registerB: 0,                          // Secondary register (not actively used in current implementation)
+    programCounter: 0,                     // Current execution position in memory
+    instructionRegister: 0,                // Current instruction being executed
+    outputRegister: 0,                     // Output value display
+    flags: { zero: false, carry: false },  // Status flags for conditional operations
+    rom: Array(256).fill(0),               // Read-Only Memory (program storage) - 256 bytes
+    ram: Array(256).fill(0),               // Random Access Memory (data storage) - 256 bytes
     activeComponents: {                    // Tracks active components for visualization
-      alu: false,
-      ram: false,
-      rom: false,
-      register_a: false,
-      register_b: false,
-      instruction_register: false,
-      program_counter: true,       // Program counter starts active
-      output_register: false
+      alu: false,                          // Arithmetic Logic Unit
+      ram: false,                          // RAM access indicator
+      rom: false,                          // ROM access indicator
+      register_a: false,                   // Register A activity
+      register_b: false,                   // Register B activity
+      instruction_register: false,         // Instruction Register activity
+      program_counter: true,               // Program Counter starts active
+      output_register: false               // Output Register activity
     },
-    currentSourceLine: 0           // Current source line being executed
+    currentSourceLine: 0                   // Current source line being executed (for highlighting)
   });
-  const [isRunning, setIsRunning] = useState(false);              // CPU execution state
-  const [isEditing, setIsEditing] = useState(true);               // Editor mode (edit/view)
+  
+  // UI and execution state variables
+  const [isRunning, setIsRunning] = useState(false);              // Whether CPU is currently executing
+  const [isEditing, setIsEditing] = useState(true);               // Editor mode (edit vs. view)
   const [showTerms, setShowTerms] = useState(false);              // Controls terms of use modal visibility
+  const [showImprovements, setShowImprovements] = useState(false); // Controls improvements modal visibility
+  
+  // Disclaimer acceptance tracking using localStorage for persistence
   const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(() => {
     // Check if user has previously accepted the disclaimer using localStorage
     return localStorage.getItem('hasAcceptedDisclaimer') === 'true';
   });
-  const [showImprovements, setShowImprovements] = useState(false);
 
+  // -------------------------------------------------------------------------
+  // Refs - persistent values that don't cause re-renders
+  // -------------------------------------------------------------------------
+  
+  // Create CPU instance using useRef to maintain a single instance between renders
+  const cpuRef = useRef(new CPU());
 
-
-  // Create a session when the component mounts
+  // -------------------------------------------------------------------------
+  // Effects - side effects and lifecycle hooks
+  // -------------------------------------------------------------------------
+  
+  /**
+   * Create a session when the component first mounts
+   * This logs the user session and enables tracking code execution
+   */
   useEffect(() => {
     const initSession = async () => {
       try {
@@ -64,21 +111,23 @@ const EightBitSimulator = () => {
     initSession();
   }, []);
 
-
-  // Check if user has seen the disclaimer
+  /**
+   * Check if user has previously seen the disclaimer
+   * Runs once on component mount
+   */
   useEffect(() => {
     const accepted = localStorage.getItem('hasAcceptedDisclaimer') === 'true';
     setHasAcceptedDisclaimer(accepted);
   }, []);
 
-  // Create CPU instance using useRef to maintain a single instance between renders
-  const cpuRef = useRef(new CPU());
-
-  // Fetch instruction set and examples from API
+  /**
+   * Fetch instruction set and example programs from API
+   * Provides fallback data if API fails to ensure simulator still works
+   */
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch instruction set and example programs in parallel
+        // Fetch instruction set and example programs in parallel for efficiency
         const [instructionSetData, examplesData] = await Promise.all([
           fetchInstructionSet(),
           fetchExamplePrograms()
@@ -87,8 +136,10 @@ const EightBitSimulator = () => {
         setInstructionSet(instructionSetData);
         setExamples(examplesData);
       } catch (error) {
-        // Provide fallback data if API fails
+        // Provide fallback data if API fails to ensure app works offline
         console.error('Failed to fetch data:', error);
+        
+        // Fallback instruction set
         setInstructionSet([
           { opcode:'0000', name: 'NOP', description: 'No Operation' },
           { opcode:'0001', name: 'LDA', description: 'Load value from memory address into A register' },
@@ -102,6 +153,8 @@ const EightBitSimulator = () => {
           { opcode:'1001', name: 'OUT', description: 'Output Register A to the output register' },
           { opcode:'1111', name: 'HLT', description: 'Halt program execution' },
         ]);
+        
+        // Fallback example programs (first example shown, others omitted for brevity)
         setExamples([
           { id: 1, name: 'Add Two Numbers', code: '; Add 2 numbers at 20 and 21\n; Result stored at address 22\n; Initialize the values to add\nLDI 6     ; Load immediate value 6 (first number)\nSTA 20    ; Store at address 20\nLDI 7     ; Load immediate value 7 (second number)\nSTA 21    ; Store at address 21\nLDI 0     ; Initialize result to 0\nSTA 22    ; Store result\n; Main program\nLDA 20    ; Load value in RAM location A to Register A\nADD 21    ; Add RegisterA and RAM location 21\nSTA 22    ; Store result in RAM location 22\nOUT       ; Output value in RegisterA to Output Register\nHLT       ; Halt execution\n\n' },
           { id: 2, name: 'Multiply Two Numbers', code: '; Multiply two numbers with embedded values\n; Values embedded in program\n; Result stored at address 22\n\n; Initialize the values to multiply\nLDI 6     ; Load immediate value 6 (first number)\nSTA 20    ; Store at address 20\nLDI 7     ; Load immediate value 7 (second number)\nSTA 21    ; Store at address 21\nLDI 1     ; Load immediate value 1 (decrement)\nSTA 40    ; Store counter at address 40\n\n; Start multiplication\nLDI 0     ; Initialize result to 0\nSTA 22    ; Store result\nLDA 21    ; Load second number\nJZ END    ; If zero, skip multiplication\nLDI 0     ; Initialize counter\nSTA 23    ; Store counter\n\nLOOP:\nLDA 23    ; Load counter\nADD 20    ; Add first number\nSTA 23    ; Update counter\nLDA 22    ; Load result\nADD 1     ; Add 1 to result\nSTA 22    ; Store result\nLDA 21    ; Load second number\nSUB 40    ; Decrement\nSTA 21    ; Update second number\nJZ END    ; If zero, we are done\nJMP LOOP  ; Repeat\n\nEND:\nLDA 23    ; Load results to register A\nOUT       ; Output value in RegisterA to Output Register\nHLT       ; Halt execution\n' },
@@ -120,10 +173,13 @@ const EightBitSimulator = () => {
     fetchData();
   }, []);
 
-  // Update current line highlighting during CPU execution
-  // Only runs at slower speeds where visual feedback is useful
+  /**
+   * Update current line highlighting during CPU execution
+   * Only runs at slower speeds where visual feedback is useful to humans
+   */
   useEffect(() => {
-    // Only run this effect when the CPU is running & when it;s visible to naked eyes
+    // Only run this effect when the CPU is running & when it's visible to naked eyes
+    // Higher speeds (>20Hz) are too fast for visual tracking
     if (!isRunning || clockSpeed > 20) return;
 
     // Create an interval to check the CPU's current line
@@ -135,30 +191,38 @@ const EightBitSimulator = () => {
       if (cpuCurrentLine !== currentLine) {
         setCurrentLine(cpuCurrentLine);
       }
-    }, 50); // Check every 50ms (faster than human perception 100ms)
+    }, 50); // Check every 50ms (faster than human perception of ~100ms)
 
-
+    // Clean up interval on unmount or dependencies change
     return () => clearInterval(intervalId);
   }, [isRunning, currentLine, clockSpeed]);
 
-  // Update CPU state when clock speed changes
+  /**
+   * Update CPU state when clock speed changes
+   * Ensures CPU runs at the correctly selected speed
+   */
   useEffect(() => {
     cpuRef.current.setClockSpeed(clockSpeed);
   }, [clockSpeed]);
 
-  // Update UI state from CPU when running
-  // Uses requestAnimationFrame for smoother updates
+  /**
+   * Update UI state from CPU when running
+   * Uses requestAnimationFrame for smoother, more efficient updates
+   */
   useEffect(() => {
     let animationFrameId;
 
     const updateCPUState = () => {
+      // Get current CPU state for UI updates
       setCpuState(cpuRef.current.getState());
 
+      // Continue animation loop if still running
       if (isRunning) {
         animationFrameId = requestAnimationFrame(updateCPUState);
       }
     };
 
+    // Start animation loop if CPU is running
     if (isRunning) {
       animationFrameId = requestAnimationFrame(updateCPUState);
     }
@@ -171,39 +235,57 @@ const EightBitSimulator = () => {
     };
   }, [isRunning]);
 
-  // Initialize RAM with zeros for clean state when loading examples
+  // -------------------------------------------------------------------------
+  // Utility Functions
+  // -------------------------------------------------------------------------
+  
+  /**
+   * Initialize RAM with zeros for clean state when loading examples
+   * Ensures consistent starting conditions for programs
+   */
   const initializeRamForExample = () => {
     const cpu = cpuRef.current;
 
-    // Clear RAM 
+    // Clear RAM to all zeros
     for (let i = 0; i < cpu.ram.length; i++) {
       cpu.ram[i] = 0;
     }
 
-    // Update state to show the initialized RAM
+    // Update state to show the initialized RAM in UI
     setCpuState(cpu.getState());
   };
 
-  // Assemble code and load it into the CPU
+  /**
+   * Assemble code and load it into the CPU
+   * Converts assembly language to machine code and prepares for execution
+   * 
+   * @returns {Array<number>} The assembled machine code program
+   */
   const assembleCode = () => {
     // Convert assembly code to machine code
     const program = cpuRef.current.assembleCode(assemblyCode);
+    
     // Load the program into the CPU's ROM
     cpuRef.current.loadProgram(program);
+    
     // Update the CPU state display
     setCpuState(cpuRef.current.getState());
-    // Initialize RAM with zeros for a clean state
-    initializeRamForExample(); // Initialize RAM with values for the example
+    
+    // Initialize RAM with zeros for a clean execution state
+    initializeRamForExample();
+    
     return program;
   };
 
-  // Execute all instructions automatically
+  /**
+   * Execute all instructions automatically
+   * Prepares and starts the CPU execution process
+   */
   const executeAll = () => {
-
     // Reset the line counter first
     setCurrentLine(0);
 
-    // If currently in edit mode, switch to view mode to show the highlighting
+    // If currently in edit mode, switch to view mode to show line highlighting
     if (isEditing) {
       setIsEditing(false);
     }
@@ -211,16 +293,18 @@ const EightBitSimulator = () => {
     // Assemble and load the program
     assembleCode();
 
-    // Record the code being executed
+    // Record the code being executed for analytics
     updateSessionCode(assemblyCode).catch(console.error);
 
     // Start program execution
     cpuRef.current.run();
     setIsRunning(true);
-
   };
 
-  // Load example code into the editor
+  /**
+   * Load example code into the editor
+   * Finds and loads the selected example program
+   */
   const loadExampleCode = () => {
     if (!selectedExample) return;
 
@@ -231,23 +315,33 @@ const EightBitSimulator = () => {
       setAssemblyCode(example.code);
 
       // Optionally assemble immediately to initialize RAM
+      // Slight delay ensures UI update completes first
       setTimeout(() => {
         assembleCode();
       }, 100);
     }
   };
 
-  // Format a byte as an 8-digit binary string (e.g., "00001111" instead of "1111")
+  /**
+   * Format a byte as an 8-digit binary string (e.g., "00001111" instead of "1111")
+   * 
+   * @param {number} value - The byte value to format
+   * @returns {string} Formatted binary string with leading zeros
+   */
   const formatBinary = (value) => {
     return value.toString(2).padStart(8, '0');
   };
 
-
-  // Format a byte as a 2-digit hex string (e.g., "0F" instead of "f")
+  /**
+   * Format a byte as a 2-digit hex string (e.g., "0F" instead of "f")
+   * 
+   * @param {number} value - The byte value to format
+   * @returns {string} Formatted uppercase hex string with leading zero if needed
+   */
   const formatHex = (value) => {
     return value.toString(16).padStart(2, '0').toUpperCase();
   };
-
+  
   // Download the current assembly code as a file
   const downloadProgram = () => {
 

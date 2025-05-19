@@ -1,3 +1,18 @@
+# /backend/eightbit_simulator/simulator/serializers.py
+# Author: Amith Lokugamage
+# Last Modified: May 18, 2025
+"""
+ * API Serializers for the 8-bit Computer Simulator
+ * 
+ * This file defines the serializers that convert between Django model instances
+ * and JSON representations for the REST API.
+ * 
+ * Features:
+ * - Serializers for instruction sets, example programs, and user sessions
+ * - Field validation and format conversion
+ * - Definition of read-only fields for automatic values
+"""
+
 from rest_framework import serializers
 from .models import InstructionSet, ExampleProgram, SimulatorSession
 

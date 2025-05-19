@@ -115,3 +115,6 @@ example_programs.json
 /backend/eightbit_simulator/simulator/migrations/
 */migrations/*
 !*/migrations/__init__.py
+
+t.txt
+tree.txt
