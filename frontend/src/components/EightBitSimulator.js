@@ -1032,7 +1032,7 @@ const EightBitSimulator = () => {
                         : "bg-gray-50 text-gray-700"
                       }`}
                   >
-                    Register A: 0x{formatHex(cpuState.registerA)}
+                    RegisterA:0x{formatHex(cpuState.registerA)}
                   </div>
                   <div
                     className={`border rounded p-1 ${cpuState.activeComponents.register_b
@@ -1040,7 +1040,7 @@ const EightBitSimulator = () => {
                         : "bg-gray-50 text-gray-700"
                       }`}
                   >
-                    Register B: 0x{formatHex(cpuState.registerB)}
+                    RegisterB: 0x{formatHex(cpuState.registerB)}
                   </div>
                   <div
                     className={`border rounded p-1 ${cpuState.activeComponents.program_counter
@@ -1144,7 +1144,7 @@ const EightBitSimulator = () => {
                       cpuState.activeComponents.register_a ? "white" : "#1E40AF"
                     }
                   >
-                    Register A:0x{formatHex(cpuState.registerA)}
+                    RegisterA:0x{formatHex(cpuState.registerA)}
                   </text>
 
                   {/* Register B */}
@@ -1171,7 +1171,7 @@ const EightBitSimulator = () => {
                       cpuState.activeComponents.register_b ? "white" : "#1E40AF"
                     }
                   >
-                    Register B:0x{formatHex(cpuState.registerB)}
+                    RegisterB:0x{formatHex(cpuState.registerB)}
                   </text>
 
                   {/* Output Register */}
